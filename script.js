@@ -339,36 +339,35 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
     
-    try {
-        // Convert canvas to blob
-        canvas.toBlob(async (blob) => {
+    // Convert canvas to blob
+    canvas.toBlob(async (blob) => {
+        try {
             const formData = new FormData();
             formData.append('email', email);
             formData.append('image', blob, 'photobooth.png');
             
             // Send to n8n webhook
-            const response = await fetch('YOUR_N8N_WEBHOOK_URL', {
+            const response = await fetch('https://n8n.vscp.dev/webhook-test/0564d45c-0667-4885-a3ba-5d28115dd2e8', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                mode: 'no-cors'
             });
             
-            if (response.ok) {
-                successMessage.classList.add('show');
-                emailInput.value = '';
-                setTimeout(() => {
-                    successMessage.classList.remove('show');
-                }, 3000);
-            } else {
-                alert('Failed to send email. Please try again.');
-            }
-        }, 'image/png');
-    } catch (error) {
-        console.error('Error sending email:', error);
-        alert('Error sending email. Please try again.');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send to Email';
-    }
+            // With no-cors mode, we can't read the response, so just assume success
+            successMessage.classList.add('show');
+            emailInput.value = '';
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Error sending email:', error);
+            alert('Error sending email: ' + error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send to Email';
+        }
+    }, 'image/png');
 });
 
 // Initialize
