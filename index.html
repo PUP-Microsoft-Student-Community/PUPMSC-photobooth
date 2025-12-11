@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobooth - PUPMSC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-pattern"></div>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="PUP MSC Logo" class="logo">
+            <div class="title-section">
+                <h1>PUP Microsoft Student Community</h1>
+                <p class="subtitle">Photo Booth Experience</p>
+            </div>
+        </div>
+        
+        <!-- Main Layout: Two Column -->
+        <div class="main-layout">
+            <!-- Left Column: Controls and Photo Strip -->
+            <div class="left-column">
+                <!-- Preview Section -->
+                <h2 class="section-title">Retake Photos</h2>
+                <div class="preview-section">
+                    <button class="retake-btn" data-index="0" disabled>
+                        <span class="photo-number">Photo 1</span>
+                        <span class="retake-text">Click to Retake</span>
+                    </button>
+                    <button class="retake-btn" data-index="1" disabled>
+                        <span class="photo-number">Photo 2</span>
+                        <span class="retake-text">Click to Retake</span>
+                    </button>
+                    <button class="retake-btn" data-index="2" disabled>
+                        <span class="photo-number">Photo 3</span>
+                        <span class="retake-text">Click to Retake</span>
+                    </button>
+                </div>
+
+                <h2 class="section-title">Your Photo Strip</h2>
+                <div class="canvas-container">
+                    <canvas id="photoCanvas"></canvas>
+                </div>
+                <div class="controls">
+                    <button id="retakeAllBtn" class="secondary-btn">Retake All Photos</button>
+                </div>
+
+                <!-- Camera Settings -->
+                <div class="camera-settings-sidebar">
+                    <label for="cameraSelect">Camera:</label>
+                    <select id="cameraSelect">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+
+                <div class="email-section">
+                    <label for="emailInput">Send photo strip to your email</label>
+                    <input type="email" id="emailInput" placeholder="your.email@example.com" required>
+                    <button id="submitBtn">Send to Email</button>
+                    <div id="successMessage" class="success-message">✓ Photo sent successfully!</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Camera Only -->
+            <div class="right-column">
+                <!-- Camera Section -->
+                <div class="camera-section">
+                    <div class="camera-container">
+                        <video id="cameraFeed" autoplay playsinline></video>
+                        <div id="countdown" class="countdown"></div>
+                        <button id="startCamera" class="camera-btn">Start Photo Session</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden canvas for capturing -->
+    <canvas id="captureCanvas" style="display: none;"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
