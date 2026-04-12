@@ -1,0 +1,25 @@
+---
+name: frontend-design
+description: Use this skill to build premium, "React-grade" UIs using only Vanilla JS, CSS, and HTML. Enforce modern CSS patterns and clean DOM management.
+---
+
+# Vanilla Frontend Design Guidelines
+
+## Visual Excellence ("React-Grade" Look)
+- **CSS Variables:** Use a centralized `:root` system for colors, spacing, and typography to maintain "design system" consistency.
+- **Modern Layouts:** Prioritize CSS Grid and Flexbox. Avoid absolute positioning unless necessary for overlays.
+- **Component Feel:** Even in Vanilla, structure code into "Component" functions that return DOM elements or use Template Literals.
+- **Micro-interactions:** Always include `:hover`, `:focus-visible`, and active states using smooth CSS transitions (0.2s ease-in-out).
+
+## Plain CSS Rules
+- **Modern Reset:** Start with a modern CSS reset (box-sizing, margin removal, fluid images).
+- **Glassmorphism/Depth:** Use subtle `backdrop-filter: blur()`, thin borders (`1px solid rgba(255,255,255,0.1)`), and layered box-shadows.
+- **Typography:** Use fluid typography (e.g., `clamp()`) and system-font stacks for a native, high-performance feel.
+
+## Vanilla JS Implementation
+- **Clean DOM:** Use `document.createElement` or `insertAdjacentHTML` with clean, indented templates.
+- **State Management:** Implement simple object-based state and "render" functions to mimic React's declarative flow without the library.
+- **Performance:** Ensure event delegation is used for dynamic elements to keep the app snappy.
+
+## Triggering
+- When the user asks to "Build a UI," "Create a component," or "Modernize" a vanilla site.
