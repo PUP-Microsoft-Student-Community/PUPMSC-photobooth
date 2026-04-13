@@ -156,6 +156,10 @@ h1 {
     display: block;
 }
 
+#cameraFeed.mirrored {
+    transform: scaleX(-1);
+}
+
 .countdown {
     position: absolute;
     top: 50%;
@@ -523,6 +527,20 @@ button:disabled {
 
 #cameraSelect:hover {
     border-color: #0078D4;
+}
+
+#flipCameraBtn {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    box-shadow: none;
+    margin: 0;
+}
+
+#flipCameraBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 @media (max-width: 1024px) {
