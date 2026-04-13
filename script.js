@@ -25,6 +25,7 @@ let uploadedImages = [null, null, null];
 let stream = null;
 let currentPhotoIndex = 0;
 let selectedCameraId = null;
+let isMirrored = false;
 
 // Get DOM elements
 const canvas = document.getElementById('photoCanvas');
@@ -32,6 +33,7 @@ const ctx = canvas.getContext('2d');
 const captureCanvas = document.getElementById('captureCanvas');
 const captureCtx = captureCanvas.getContext('2d');
 const retakeAllBtn = document.getElementById('retakeAllBtn');
+const downloadBtn = document.getElementById('downloadBtn');
 const startCameraBtn = document.getElementById('startCamera');
 const cameraFeed = document.getElementById('cameraFeed');
 const countdownEl = document.getElementById('countdown');
@@ -40,6 +42,12 @@ const emailInput = document.getElementById('emailInput');
 const submitBtn = document.getElementById('submitBtn');
 const successMessage = document.getElementById('successMessage');
 const cameraSelect = document.getElementById('cameraSelect');
+const flipCameraBtn = document.getElementById('flipCameraBtn');
+
+function updateMirrorUI() {
+    cameraFeed.classList.toggle('mirrored', isMirrored);
+    flipCameraBtn.textContent = isMirrored ? 'Mirror: On' : 'Mirror: Off';
+}
 
 // Set canvas size
 canvas.width = canvasWidth;
@@ -85,6 +93,12 @@ cameraSelect.addEventListener('change', async (e) => {
     }
 });
 
+// Toggle mirror mode for preview and captured photo
+flipCameraBtn.addEventListener('click', async () => {
+    isMirrored = !isMirrored;
+    updateMirrorUI();
+});
+
 // Start camera with specific device
 async function startCameraWithDevice(deviceId) {
     try {
@@ -109,6 +123,7 @@ async function startCameraWithDevice(deviceId) {
 
 // Initialize cameras on page load
 getCameras();
+updateMirrorUI();
 
 // Start camera
 startCameraBtn.addEventListener('click', async () => {
@@ -160,7 +175,17 @@ function countdown() {
 function capturePhoto(index) {
     captureCanvas.width = cameraFeed.videoWidth;
     captureCanvas.height = cameraFeed.videoHeight;
-    captureCtx.drawImage(cameraFeed, 0, 0);
+
+    captureCtx.save();
+    captureCtx.clearRect(0, 0, captureCanvas.width, captureCanvas.height);
+
+    if (isMirrored) {
+        captureCtx.translate(captureCanvas.width, 0);
+        captureCtx.scale(-1, 1);
+    }
+
+    captureCtx.drawImage(cameraFeed, 0, 0, captureCanvas.width, captureCanvas.height);
+    captureCtx.restore();
     
     const imageData = captureCanvas.toDataURL('image/png');
     const img = new Image();
@@ -212,7 +237,36 @@ retakeBtns.forEach((btn, index) => {
 function checkAllImagesLoaded() {
     const allLoaded = uploadedImages.every(img => img !== null);
     submitBtn.disabled = !allLoaded;
+    downloadBtn.disabled = !allLoaded;
 }
+
+// Local download fallback for users who prefer saving directly
+downloadBtn.addEventListener('click', () => {
+    if (!uploadedImages.every(img => img !== null)) {
+        alert('Please capture all photos first');
+        return;
+    }
+
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const filename = `photobooth-${timestamp}.png`;
+
+    canvas.toBlob((blob) => {
+        if (!blob) {
+            alert('Could not create image file. Please try again.');
+            return;
+        }
+
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+    }, 'image/png');
+});
 
 // Retake all photos
 retakeAllBtn.addEventListener('click', async () => {
@@ -226,6 +280,7 @@ retakeAllBtn.addEventListener('click', async () => {
     });
     
     submitBtn.disabled = true;
+    downloadBtn.disabled = true;
     
     // Reload template
     const template = new Image();
@@ -342,18 +397,25 @@ submitBtn.addEventListener('click', async () => {
     // Convert canvas to blob
     canvas.toBlob(async (blob) => {
         try {
+            const apiBase = window.location.port === '3000'
+                ? ''
+                : `${window.location.protocol}//${window.location.hostname}:3000`;
+
             const formData = new FormData();
             formData.append('email', email);
             formData.append('image', blob, 'photobooth.png');
             
-            // Send to n8n webhook
-            const response = await fetch('https://n8n.vscp.dev/webhook-test/0564d45c-0667-4885-a3ba-5d28115dd2e8', {
+            // Send to local Nodemailer backend
+            const response = await fetch(`${apiBase}/send-email`, {
                 method: 'POST',
-                body: formData,
-                mode: 'no-cors'
+                body: formData
             });
-            
-            // With no-cors mode, we can't read the response, so just assume success
+
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || 'Failed to send email');
+            }
+
             successMessage.classList.add('show');
             emailInput.value = '';
             setTimeout(() => {
@@ -372,6 +434,7 @@ submitBtn.addEventListener('click', async () => {
 
 // Initialize
 submitBtn.disabled = true;
+downloadBtn.disabled = true;
 
 // Load and display template on page load
 const templateImg = new Image();
