@@ -19,11 +19,31 @@ const transporter = nodemailer.createTransport({
 });
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+
+    next();
+});
 
 // Endpoint to handle email sending
 app.post('/send-email', upload.single('image'), async (req, res) => {
     const { email } = req.body;
-    const imagePath = req.file.path;
+    const imagePath = req.file?.path;
+
+    if (!email) {
+        return res.status(400).send('Email is required.');
+    }
+
+    if (!imagePath) {
+        return res.status(400).send('Image is required.');
+    }
 
     try {
         const mailOptions = {
@@ -41,13 +61,18 @@ app.post('/send-email', upload.single('image'), async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        // Delete the uploaded file after sending
-        fs.unlinkSync(imagePath);
-
         res.status(200).send('Email sent successfully!');
     } catch (error) {
         console.error('Error sending email:', error);
         res.status(500).send('Failed to send email.');
+    } finally {
+        if (imagePath) {
+            fs.unlink(imagePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error('Error deleting uploaded image:', unlinkErr);
+                }
+            });
+        }
     }
 });
 
