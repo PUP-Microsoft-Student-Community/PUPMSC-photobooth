@@ -139,7 +139,7 @@ async function takePhotoSequence() {
 // Countdown function
 function countdown() {
     return new Promise((resolve) => {
-        let count = 3;
+        let count = 5;
         countdownEl.textContent = count;
         countdownEl.classList.add('active');
         
@@ -347,7 +347,7 @@ submitBtn.addEventListener('click', async () => {
             formData.append('image', blob, 'photobooth.png');
             
             // Send to n8n webhook
-            const response = await fetch('https://n8n.vscp.dev/webhook-test/0564d45c-0667-4885-a3ba-5d28115dd2e8', {
+            const response = await fetch('https://n8n.vscp.dev/webhook/0564d45c-0667-4885-a3ba-5d28115dd2e8', {
                 method: 'POST',
                 body: formData,
                 mode: 'no-cors'
